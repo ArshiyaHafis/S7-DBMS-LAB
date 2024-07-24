@@ -4,39 +4,89 @@
 #include "FrontendInterface/FrontendInterface.h"
 #include <iostream>
 
-int main(int argc, char *argv[]) {
+void checkRelations()
+{
+	RecBuffer relCatBuffer(RELCAT_BLOCK);
+
+
+	HeadInfo relCatHeader;
+
+	// load the headers of both the blocks into relCatHeader and attrCatHeader.
+	// (we will implement these functions later)
+	relCatBuffer.getHeader(&relCatHeader);
+
+	int relationCount = relCatHeader.numEntries;
+
+	for (int i = 0; i < relationCount; i++)
+	{ 
+
+		Attribute relCatRecord[RELCAT_NO_ATTRS]; // will store the record from the relation catalog
+		relCatBuffer.getRecord(relCatRecord, i);
+
+		printf("Relation: %s\n", relCatRecord[RELCAT_REL_NAME_INDEX].sVal);
+
+		int attrCatBlockNo = ATTRCAT_BLOCK;
+		while(attrCatBlockNo != -1)
+		{ 
+
+			RecBuffer attrCatBuffer(attrCatBlockNo);
+			HeadInfo attrCatHeader;
+			attrCatBuffer.getHeader(&attrCatHeader);
+			int attributeCount = attrCatHeader.numEntries;
+
+			for (int j = 0; j < attributeCount; j++){
+				Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
+				attrCatBuffer.getRecord(attrCatRecord, j);
+
+				if (strcmp(attrCatRecord[ATTRCAT_REL_NAME_INDEX].sVal, relCatRecord[RELCAT_REL_NAME_INDEX].sVal) == 0)
+				{ /* attribute catalog entry corresponds to the current relation */
+					const char *attrType = attrCatRecord[ATTRCAT_ATTR_TYPE_INDEX].nVal == NUMBER ? "NUM" : "STR";
+					printf("  %s: %s\n", attrCatRecord[ATTRCAT_ATTR_NAME_INDEX].sVal, attrType);
+				}
+			}
+
+			attrCatBlockNo = attrCatHeader.rblock;
+		}
+		printf("\n");
+	}
+}
+
+int main(int argc, char *argv[])
+{
 	Disk disk_run;
+	printf("Before:\n");
+	checkRelations();
 
-	unsigned char buffer[BLOCK_SIZE];
-	char message[2048];
-	Disk::readBlock(buffer, 0);
-	for (int i = 0; i < 2048; ++i) {
-		std::cout << static_cast<int>(buffer[i]) << std::endl;
-	}
+	int attrCatBlockNo = ATTRCAT_BLOCK;
+	while(attrCatBlockNo != -1)
+	{ 
 
-	Disk::readBlock(buffer, 1);
-	for (int i = 0; i < 2048; ++i) {
-		std::cout << static_cast<int>(buffer[i]) << std::endl;
-	}
-	
-	Disk::readBlock(buffer, 2);
-	for (int i = 0; i < 2048; ++i) {
-		std::cout << static_cast<int>(buffer[i]) << std::endl;
-	}
-	
-	Disk::readBlock(buffer, 3);
-	for (int i = 0; i < 2048; ++i) {
-		std::cout << static_cast<int>(buffer[i]) << std::endl;
-	}
+		RecBuffer attrCatBuffer(attrCatBlockNo);
+		HeadInfo attrCatHeader;
+		attrCatBuffer.getHeader(&attrCatHeader);
+		int attributeCount = attrCatHeader.numEntries;
+
+		for (int j = 0; j < attributeCount; j++){
+			Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
+			attrCatBuffer.getRecord(attrCatRecord, j);
+
+			if (strcmp(attrCatRecord[ATTRCAT_REL_NAME_INDEX].sVal, "Students") == 0)
+			{ /* attribute catalog entry corresponds to the current relation */
+				if (strcmp(attrCatRecord[ATTRCAT_ATTR_NAME_INDEX].sVal, "Class") == 0)
+				{
+					unsigned char buffer[BLOCK_SIZE];
+					Disk::readBlock(buffer, ATTRCAT_BLOCK);
+					memcpy(buffer + 52 + 96*j + 16, "Batch", ATTR_SIZE);
+					Disk::writeBlock(buffer, ATTRCAT_BLOCK);
+					printf("After:\n");
+					checkRelations();
+					break;
+				}
+			}
+		}
+
+		attrCatBlockNo = attrCatHeader.rblock;
+		}
 
 	return 0;
 }
-
-// int main(int argc, char *argv[]) {
-//   /* Initialize the Run Copy of Disk */
-//   Disk disk_run;
-//   // StaticBuffer buffer;
-//   // OpenRelTable cache;
-
-//   return FrontendInterface::handleFrontend(argc, argv);
-// }
