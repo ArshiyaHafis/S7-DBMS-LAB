@@ -54,6 +54,7 @@ void checkRelations()
 int main(int argc, char *argv[])
 {
 	Disk disk_run;
+	StaticBuffer buffer;
 	printf("Before:\n");
 	checkRelations();
 
