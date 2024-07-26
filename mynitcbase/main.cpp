@@ -55,9 +55,21 @@ int main(int argc, char *argv[])
 {
 	Disk disk_run;
 	StaticBuffer buffer;
-	printf("Before:\n");
-	checkRelations();
+	OpenRelTable cache;
+	for (int table = 0; table < 3; table++) {
+		RelCatEntry relCatBuf;
+		RelCacheTable::getRelCatEntry(table, &relCatBuf);
 
+		printf("Relation: %s\n", relCatBuf.relName);
+
+		for (int attr = 0; attr < relCatBuf.numAttrs; attr++) {
+			AttrCatEntry attribute;
+			AttrCacheTable::getAttrCatEntry(table, attr, &attribute);
+			printf("  %s: %s\n", attribute.attrName, attribute.attrType==NUMBER?"NUM":"STR");
+		}
+	}
+	/*printf("Before:\n");
+	checkRelations();
 	int attrCatBlockNo = ATTRCAT_BLOCK;
 	while(attrCatBlockNo != -1)
 	{ 
@@ -72,7 +84,7 @@ int main(int argc, char *argv[])
 			attrCatBuffer.getRecord(attrCatRecord, j);
 
 			if (strcmp(attrCatRecord[ATTRCAT_REL_NAME_INDEX].sVal, "Students") == 0)
-			{ /* attribute catalog entry corresponds to the current relation */
+			{ 
 				if (strcmp(attrCatRecord[ATTRCAT_ATTR_NAME_INDEX].sVal, "Class") == 0)
 				{
 					unsigned char buffer[BLOCK_SIZE];
@@ -87,7 +99,7 @@ int main(int argc, char *argv[])
 		}
 
 		attrCatBlockNo = attrCatHeader.rblock;
-		}
+		}*/
 
 	return 0;
 }
