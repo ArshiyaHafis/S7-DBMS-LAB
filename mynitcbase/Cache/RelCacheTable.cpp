@@ -1,6 +1,6 @@
 #include "RelCacheTable.h"
-
 #include <cstring>
+#include <iostream>
 RelCacheEntry* RelCacheTable::relCache[MAX_OPEN];
 
 /*
@@ -20,7 +20,6 @@ int RelCacheTable::getRelCatEntry(int relId, RelCatEntry* relCatBuf)
 
     // copy the value to the relCatBuf argument
     *relCatBuf = relCache[relId]->relCatEntry;
-
     return SUCCESS;
 }
 

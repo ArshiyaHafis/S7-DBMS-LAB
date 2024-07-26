@@ -72,7 +72,7 @@ int RecBuffer::getRecord(union Attribute *rec, int slotNum)
     int recordSize = attrCount * ATTR_SIZE;
     int slotNumRecordOffset = (HEADER_SIZE + slotCount) + (recordSize* slotNum);
     unsigned char *slotPointer = buffer + slotNumRecordOffset;
-    
+
     memcpy(rec, slotPointer, recordSize);
   // ... (the rest of the logic is as in stage 2
 }
@@ -83,20 +83,20 @@ NOTE: this function expects the caller to allocate memory for the argument
 */
 int BlockBuffer::loadBlockAndGetBufferPtr(unsigned char **buffPtr) {
   // check whether the block is already present in the buffer using StaticBuffer.getBufferNum()
-  int bufferNum = StaticBuffer::getBufferNum(this->blockNum);
+    int bufferNum = StaticBuffer::getBufferNum(this->blockNum);
 
-  if (bufferNum == E_BLOCKNOTINBUFFER) {
-    bufferNum = StaticBuffer::getFreeBuffer(this->blockNum);
+    if (bufferNum == E_BLOCKNOTINBUFFER) {
+        bufferNum = StaticBuffer::getFreeBuffer(this->blockNum);
 
-    if (bufferNum == E_OUTOFBOUND) {
-      return E_OUTOFBOUND;
+        if (bufferNum == E_OUTOFBOUND) {
+        return E_OUTOFBOUND;
+        }
+
+        Disk::readBlock(StaticBuffer::blocks[bufferNum], this->blockNum);
     }
 
-    Disk::readBlock(StaticBuffer::blocks[bufferNum], this->blockNum);
-  }
+    // store the pointer to this buffer (blocks[bufferNum]) in *buffPtr
+    *buffPtr = StaticBuffer::blocks[bufferNum];
 
-  // store the pointer to this buffer (blocks[bufferNum]) in *buffPtr
-  *buffPtr = StaticBuffer::blocks[bufferNum];
-
-  return SUCCESS;
+    return SUCCESS;
 }

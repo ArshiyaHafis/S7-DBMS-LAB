@@ -1,10 +1,10 @@
 #include "OpenRelTable.h"
 #include <iostream>
-#include <cstdlib>
 #include <cstring>
 
-OpenRelTable::OpenRelTable() {
-    for (int i = 0; i < MAX_OPEN; ++i) {
+OpenRelTable::OpenRelTable()
+{
+	for (int i = 0; i < MAX_OPEN; ++i) {
         RelCacheTable::relCache[i] = nullptr;
         AttrCacheTable::attrCache[i] = nullptr;
     }
@@ -30,13 +30,25 @@ OpenRelTable::OpenRelTable() {
     RelCacheTable::relCache[ATTRCAT_RELID] = (struct RelCacheEntry*)malloc(sizeof(RelCacheEntry));
     *(RelCacheTable::relCache[ATTRCAT_RELID]) = relCacheEntry;
 
-    /************ Setting up Attribute cache entries ************/
-    /**** setting up Relation Catalog relation in the Attribute Cache Table ****/
-    RecBuffer attrCatBlock(ATTRCAT_BLOCK);
-    Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
+	/******************** setting up student relation in the Relation Cache Table ******************/
+	relCatBlock.getRecord(relCatRecord, RELCAT_SLOTNUM_FOR_ATTRCAT+1);
 
+	RelCacheTable::recordToRelCatEntry(relCatRecord, &relCacheEntry.relCatEntry);
+	relCacheEntry.recId.block = RELCAT_BLOCK;
+	relCacheEntry.recId.slot = RELCAT_SLOTNUM_FOR_ATTRCAT+1;
+
+	RelCacheTable::relCache[ATTRCAT_RELID+1] = (struct RelCacheEntry *)malloc(sizeof(RelCacheEntry));
+	*(RelCacheTable::relCache[ATTRCAT_RELID+1]) = relCacheEntry;
+	
+
+	/************ Setting up Attribute cache entries ************/
+    /**** setting up Relation Catalog relation in the Attribute Cache Table ****/
+
+	RecBuffer attrCatBlock(ATTRCAT_BLOCK);
+    Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
     AttrCacheEntry *attrCacheHead = nullptr;
     AttrCacheEntry *temp;
+
     for (int cache = 0; cache < RELCAT_NO_ATTRS; cache++)
     {
         AttrCacheEntry* newEntry = (struct AttrCacheEntry*)malloc(sizeof(AttrCacheEntry));
@@ -60,7 +72,7 @@ OpenRelTable::OpenRelTable() {
     
     AttrCacheTable::attrCache[RELCAT_RELID] = attrCacheHead;
 
-    /**** setting up Attribute Catalog relation in the Attribute Cache Table ****/
+	/**** setting up Attribute Catalog relation in the Attribute Cache Table ****/
     attrCacheHead = nullptr;
     for (int cache = 6; cache < RELCAT_NO_ATTRS + 6; cache++)
     {
@@ -83,8 +95,35 @@ OpenRelTable::OpenRelTable() {
         }  
     }
     AttrCacheTable::attrCache[ATTRCAT_RELID] = attrCacheHead;
+
+
+	/**** setting up student relation in the Attribute Cache Table ****/
+	attrCacheHead = nullptr;
+	for (int cache = 12; cache < 18; cache++)
+    {
+        AttrCacheEntry* newEntry = (struct AttrCacheEntry*)malloc(sizeof(AttrCacheEntry));
+        attrCatBlock.getRecord(attrCatRecord, cache);
+        AttrCacheTable::recordToAttrCatEntry(attrCatRecord, &newEntry->attrCatEntry);
+        newEntry->recId.block = ATTRCAT_BLOCK;
+        newEntry->recId.slot = cache;
+        newEntry->next = nullptr;
+
+        if (attrCacheHead == nullptr)
+        {
+            attrCacheHead = newEntry;
+            temp = attrCacheHead;
+        }
+        else
+        {
+            temp->next = newEntry;
+            temp = newEntry;
+        }  
+    }
+	AttrCacheTable::attrCache[ATTRCAT_RELID+1] = attrCacheHead; 
+
 }
 
-OpenRelTable::~OpenRelTable() {
+OpenRelTable::~OpenRelTable()
+{
   // free all the memory that you allocated in the constructor
 }
