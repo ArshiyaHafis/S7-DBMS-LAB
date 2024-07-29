@@ -56,7 +56,8 @@ int main(int argc, char *argv[])
 	Disk disk_run;
 	StaticBuffer buffer;
 	OpenRelTable cache;
-	for (int table = 0; table < 3; table++) {
+	return FrontendInterface::handleFrontend(argc, argv);
+	/*for (int table = 0; table < 3; table++) {
 		RelCatEntry relCatBuf;
 		RelCacheTable::getRelCatEntry(table, &relCatBuf);
 
@@ -68,7 +69,7 @@ int main(int argc, char *argv[])
 			printf("  %s: %s\n", attribute.attrName, attribute.attrType==NUMBER?"NUM":"STR");
 		}
 	}
-	/*printf("Before:\n");
+	printf("Before:\n");
 	checkRelations();
 	int attrCatBlockNo = ATTRCAT_BLOCK;
 	while(attrCatBlockNo != -1)
