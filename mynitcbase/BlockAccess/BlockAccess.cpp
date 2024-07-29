@@ -9,9 +9,12 @@ RecId BlockAccess::linearSearch(int relId, char attrName[ATTR_SIZE], union Attri
     RelCacheTable::getSearchIndex(relId, &prevRecId);
     int block = -1;
     int slot = -1;
+
+    RelCatEntry relCatBuf;
+    RelCacheTable::getRelCatEntry(relId, &relCatBuf);
+
     if (prevRecId.block == -1 && prevRecId.slot == -1) {
-        RelCatEntry relCatBuf;
-        RelCacheTable::getRelCatEntry(relId, &relCatBuf);
+        
 
         block = relCatBuf.firstBlk;
         slot = 0;
@@ -22,11 +25,10 @@ RecId BlockAccess::linearSearch(int relId, char attrName[ATTR_SIZE], union Attri
     }
     while (block != -1) {
         RecBuffer recBuffer(block);
-
-        Attribute record;
+        Attribute recordEntry[relCatBuf.numAttrs];
         HeadInfo header;
 
-        recBuffer.getRecord(&record, slot);
+        recBuffer.getRecord(recordEntry, slot);
         recBuffer.getHeader(&header);
         unsigned char slotMap[header.numSlots];
         recBuffer.getSlotMap(slotMap);
@@ -45,9 +47,9 @@ RecId BlockAccess::linearSearch(int relId, char attrName[ATTR_SIZE], union Attri
 
         AttrCatEntry attrCatBuf;
         int ret = AttrCacheTable::getAttrCatEntry(relId, attrName, &attrCatBuf);
+        Attribute currRecordAttr = recordEntry[attrCatBuf.offset];
 
-
-        int cmpVal = compareAttrs(record, attrVal, attrCatBuf.attrType);
+        int cmpVal = compareAttrs(currRecordAttr, attrVal, attrCatBuf.attrType);
 
         if (
             (op == NE && cmpVal != 0) ||    // if op is "not equal to"
@@ -56,7 +58,8 @@ RecId BlockAccess::linearSearch(int relId, char attrName[ATTR_SIZE], union Attri
             (op == EQ && cmpVal == 0) ||    // if op is "equal to"
             (op == GT && cmpVal > 0) ||     // if op is "greater than"
             (op == GE && cmpVal >= 0)       // if op is "greater than or equal to"
-        ) {
+        ) 
+        {
             RecId searchIndex = {block, slot};
             RelCacheTable::setSearchIndex(relId, &searchIndex);
             return searchIndex;
