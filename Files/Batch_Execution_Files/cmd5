@@ -1,0 +1,9 @@
+OPEN TABLE Events;
+SELECT * FROM Events INTO null WHERE id>0;
+CLOSE TABLE Events;
+OPEN TABLE Locations;
+SELECT * FROM Locations INTO null WHERE id>0;
+CLOSE TABLE Locations;
+OPEN TABLE Participants;
+SELECT * FROM Participants INTO null WHERE id>0;
+CLOSE TABLE Participants;
