@@ -289,7 +289,7 @@ int OpenRelTable::getRelId(char relName[ATTR_SIZE])
 
     for (int i = 0; i < MAX_OPEN; i++)
     {
-        if (strcmp(tableMetaInfo[i].relName, relName) == 0)
+        if (strcmp(tableMetaInfo[i].relName, relName) == 0 && !tableMetaInfo[i].free )
         {
             return i;
         }
@@ -297,6 +297,7 @@ int OpenRelTable::getRelId(char relName[ATTR_SIZE])
 
     return E_RELNOTOPEN;
 }
+
 
 
 int OpenRelTable::openRel(char relName[ATTR_SIZE])
