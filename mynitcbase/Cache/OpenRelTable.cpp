@@ -190,10 +190,20 @@ int OpenRelTable::closeRel(int relId) {
     if (tableMetaInfo[relId].free) {
         return E_RELNOTOPEN;
     }
+
+    if (RelCacheTable::relCache[relId]->dirty) {
+        RelCatEntry relCatEntry = RelCacheTable::relCache[relId]->relCatEntry;
+        Attribute record[RELCAT_NO_ATTRS];
+        RelCacheTable::relCatEntryToRecord(&relCatEntry, record);
+        RecId recId = RelCacheTable::relCache[relId]->recId;
+        RecBuffer relCatBlock(recId.block);
+        relCatBlock.setRecord(record, recId.slot);
+    }
+
     AttrCacheEntry* head = AttrCacheTable::attrCache[relId];
-    for (AttrCacheEntry* it = head, *next; it != nullptr; it = next) {
-        next = it->next;
-        free(it);
+    for (AttrCacheEntry* temp = head, *next; temp != nullptr; temp = next) {
+        next = temp->next;
+        free(temp);
     }
     OpenRelTable::tableMetaInfo[relId].free = true;
     free(RelCacheTable::relCache[relId]);
