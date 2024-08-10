@@ -250,52 +250,24 @@ int BlockBuffer::getFreeBlock(int blockType){
 
     return block;
 }
-int RecBuffer::setSlotMap(unsigned char* slotMap) {
-    unsigned char* bufferPtr;
 
+
+int RecBuffer::setSlotMap(unsigned char *slotMap) {
+    unsigned char *bufferPtr;
     int ret = loadBlockAndGetBufferPtr(&bufferPtr);
-
-    if (ret != SUCCESS)
+    if (ret != SUCCESS){
         return ret;
+    }
 
     struct HeadInfo head;
-    getHeader(&head);
+    BlockBuffer::getHeader(&head);
 
-    int slotCount = head.numSlots;
-
-    unsigned char* slotMapInBuffer = bufferPtr + HEADER_SIZE;
-
-    memcpy(slotMapInBuffer, slotMap, slotCount);
-
-    return StaticBuffer::setDirtyBit(this->blockNum);
-
+    int numSlots = head.numSlots;
+    unsigned char *slotMapInBuffer = bufferPtr + HEADER_SIZE;
+    memcpy(slotMapInBuffer, slotMap, numSlots);
+    StaticBuffer::setDirtyBit(this->blockNum);
+    return SUCCESS;
 }
-
-
-// int RecBuffer::setSlotMap(unsigned char *slotMap) {
-//     unsigned char *bufferPtr;
-//     int ret = loadBlockAndGetBufferPtr(&bufferPtr);
-//     if (ret != SUCCESS){
-//         return ret;
-//     }
-
-//     struct HeadInfo head;
-//     ret = BlockBuffer::getHeader(&head);
-
-//     if(ret != SUCCESS){
-//         printf("Error in getting header.\n");
-//         exit(1);
-//     }
-
-//     int numSlots = head.numSlots;
-//     unsigned char *slotMapInBuffer = bufferPtr + HEADER_SIZE;
-//     memcpy(slotMapInBuffer, slotMap, numSlots);
-//     ret = StaticBuffer::setDirtyBit(this->blockNum);
-//     if (ret != SUCCESS){
-//         return ret;
-//     }
-//     return SUCCESS;
-// }
 
 int BlockBuffer::getBlockNum(){
     return this->blockNum;

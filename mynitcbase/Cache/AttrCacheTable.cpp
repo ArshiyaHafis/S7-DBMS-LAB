@@ -41,10 +41,6 @@ int AttrCacheTable::getAttrCatEntry(int relId, char attrName[ATTR_SIZE], AttrCat
 }
 
 
-/* Converts a attribute catalog record to AttrCatEntry struct
-    We get the record as Attribute[] from the BlockBuffer.getRecord() function.
-    This function will convert that to a struct AttrCatEntry type.
-*/
 void AttrCacheTable::recordToAttrCatEntry(union Attribute record[ATTRCAT_NO_ATTRS], AttrCatEntry* attrCatEntry) {
     strcpy(attrCatEntry->relName, record[ATTRCAT_REL_NAME_INDEX].sVal);
     strcpy(attrCatEntry->attrName, record[ATTRCAT_ATTR_NAME_INDEX].sVal);
