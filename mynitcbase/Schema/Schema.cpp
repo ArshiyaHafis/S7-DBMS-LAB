@@ -120,7 +120,6 @@ int Schema::deleteRel(char *relName) {
         return E_NOTPERMITTED;
     }
     int relId = OpenRelTable::getRelId(relName);
-    printf("hehe");
     if(relId != E_RELNOTOPEN){
         return E_RELOPEN;
     }
