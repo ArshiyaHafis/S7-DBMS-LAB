@@ -228,6 +228,7 @@ int OpenRelTable::closeRel(int relId) {
 
     RelCacheTable::relCache[relId] = nullptr;
     AttrCacheTable::attrCache[relId] = nullptr;
+    std::cout<<"Comparisons: "<<count<<std::endl;
 
     return SUCCESS;
 

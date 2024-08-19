@@ -7,7 +7,6 @@ using std::endl;
 
 RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attrVal, int op) {
     IndexId searchIndex;
-    static int searchCount;
     AttrCacheTable::getSearchIndex(relId, attrName, &searchIndex);
 
     AttrCatEntry attrCatEntry;
@@ -18,7 +17,6 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
     {
         block = attrCatEntry.rootBlock;
         index = 0;
-        searchCount = 0;
 
         if (block == -1) {
             return RecId{-1, -1};
@@ -64,7 +62,6 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
             while (i < intHead.numEntries) {
                 internalBlk.getEntry(&intEntry, i);
                 int cval = compareAttrs(intEntry.attrVal, attrVal, attrCatEntry.attrType);
-                searchCount++;
                 if (((op == EQ || op == GE) && cval >= 0) ||(op == GT && cval > 0))
                 {
                     break;
@@ -91,7 +88,6 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
         while (index < leafHead.numEntries) 
         {
             leafBlk.getEntry(&leafEntry, index);
-            searchCount++;
             int cmpVal = compareAttrs(leafEntry.attrVal, attrVal, attrCatEntry.attrType);
 
             if (

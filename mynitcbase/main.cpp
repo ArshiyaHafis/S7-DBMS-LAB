@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
 	Disk disk_run;
 	StaticBuffer buffer;
 	OpenRelTable cache;
+	count = 0;
 	return FrontendInterface::handleFrontend(argc, argv);
 	/*for (int table = 0; table < 3; table++) {
 		RelCatEntry relCatBuf;

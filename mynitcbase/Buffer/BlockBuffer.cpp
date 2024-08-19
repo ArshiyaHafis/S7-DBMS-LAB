@@ -6,7 +6,7 @@
 
 
 // the declarations for these functions can be found in "BlockBuffer.h"
-
+int count = 0;
 
 BlockBuffer::BlockBuffer(char blockType){
     int blockTypeInt;
@@ -42,6 +42,10 @@ RecBuffer::RecBuffer() : BlockBuffer('R'){}
 
 int compareAttrs(union Attribute attr1, union Attribute attr2, int attrType) {
     int diff;
+    if (attrType == NUMBER){
+        count ++;
+    }
+    
     (attrType == NUMBER)
         ? diff = attr1.nVal - attr2.nVal
         : diff = strcmp(attr1.sVal, attr2.sVal);
