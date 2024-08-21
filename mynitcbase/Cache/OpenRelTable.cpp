@@ -221,18 +221,26 @@ int OpenRelTable::closeRel(int relId) {
 
         relCatBuffer.setRecord(record, RelCacheTable::relCache[relId]->recId.slot);
     }
-
-    OpenRelTable::tableMetaInfo[relId].free = true;
     free(RelCacheTable::relCache[relId]);
-    clearList(AttrCacheTable::attrCache[relId]);
-
     RelCacheTable::relCache[relId] = nullptr;
+
+    AttrCacheEntry *entry, *temp;
+    entry = AttrCacheTable::attrCache[relId];
+    while(entry != nullptr) {
+        if(entry->dirty) {
+            Attribute record[ATTRCAT_NO_ATTRS];
+            AttrCacheTable::attrCatEntryToRecord(&entry->attrCatEntry, record);
+            RecBuffer attrCatBlock(entry->recId.block);
+            attrCatBlock.setRecord(record, entry->recId.slot);
+        }
+
+        temp = entry;
+        entry = entry->next;
+        free(temp);
+    }
     AttrCacheTable::attrCache[relId] = nullptr;
-    std::cout<<"Comparisons: "<<count<<std::endl;
-
+    tableMetaInfo[relId].free = true;
     return SUCCESS;
-
-
 }
 // int OpenRelTable::closeRel(int relId) {
 //     if (relId==RELCAT_RELID || relId==ATTRCAT_RELID) {
