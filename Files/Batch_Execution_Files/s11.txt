@@ -1,0 +1,5 @@
+CREATE TABLE S11_Students(name STR, cgpa NUM);
+OPEN TABLE S11_Students;
+INSERT INTO S11_Students VAlUES FROM s11students.csv;
+CREATE INDEX ON S11_Students.name;
+SELECT * FROM S11_Students INTO S11_9_Students WHERE cgpa >= 9;
