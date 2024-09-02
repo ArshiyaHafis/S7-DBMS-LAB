@@ -1,0 +1,22 @@
+OPEN TABLE Locations
+OPEN TABLE Events
+SELECT name FROM Locations JOIN Events INTO EventLocations WHERE Locations.name = Events.location
+
+
+OPEN TABLE Events
+SELECT title FROM Events INTO AudiEvents WHERE location=Audi;
+OPEN TABLE Participants
+OPEN TABLE AudiEvents
+SELECT * FROM Participants JOIN AudiEvents INTO AudiPeople WHERE Participants.event = AudiEvents.title;
+
+
+
+OPEN TABLE Locations
+SELECT * FROM Locations INTO 100_Capacity WHERE capacity >= 101;
+OPEN TABLE 100_Capacity
+SELECT name FROM 100_Capacity INTO 100_200_Capacit WHERE capacity <= 199
+OPEN TABLE 100_200_Capacit
+SELECT title FROM Events JOIN 100_200_Capacit INTO 100_200_Events WHERE Events.location = 100_200_Capacit.name
+OPEN TABLE 100_200_Events
+OPEN TABLE Participants
+SELECT * FROM Participants JOIN 100_200_Events INTO MiniEventPeople WHERE Participants.event = 100_200_Events.title
